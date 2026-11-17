@@ -1,0 +1,16 @@
+.qt/
+CMakeCache.txt
+CMakeFiles/
+*_autogen/
+*.a
+*.o
+fsk_test
+gui_smoke
+engine_test
+dsp_loopback
+macro_test
+Makefile
+mmtty
+cmake_install.cmake
+DartConfiguration.tcl
+CTestTestfile.cmake
