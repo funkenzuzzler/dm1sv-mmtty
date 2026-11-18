@@ -1,0 +1,653 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry"><rect><x>0</x><y>0</y><width>900</width><height>780</height></rect></property>
+  <property name="windowTitle"><string notr="true">MMTTY</string></property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="rootLayout" stretch="0,0,1,0,0,0">
+    <property name="leftMargin"><number>6</number></property>
+    <property name="topMargin"><number>6</number></property>
+    <property name="rightMargin"><number>6</number></property>
+    <property name="bottomMargin"><number>6</number></property>
+    <item>
+     <widget class="QWidget" name="row1Box">
+      <layout class="QHBoxLayout" name="row1Layout">
+       <property name="leftMargin"><number>0</number></property>
+       <property name="topMargin"><number>0</number></property>
+       <property name="rightMargin"><number>0</number></property>
+       <property name="bottomMargin"><number>0</number></property>
+       <item>
+        <widget class="QToolButton" name="tAfc">
+         <property name="minimumSize"><size><width>40</width><height>0</height></size></property>
+         <property name="toolTip"><string>Automatic frequency control</string></property>
+         <property name="text"><string notr="true">AFC</string></property>
+         <property name="focusPolicy"><enum>Qt::NoFocus</enum></property>
+         <property name="checkable"><bool>true</bool></property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="tNet">
+         <property name="minimumSize"><size><width>40</width><height>0</height></size></property>
+         <property name="toolTip"><string>Transmit on the receive frequency</string></property>
+         <property name="text"><string notr="true">NET</string></property>
+         <property name="focusPolicy"><enum>Qt::NoFocus</enum></property>
+         <property name="checkable"><bool>true</bool></property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="tRev">
+         <property name="minimumSize"><size><width>40</width><height>0</height></size></property>
+         <property name="toolTip"><string>Reverse mark and space</string></property>
+         <property name="text"><string notr="true">REV</string></property>
+         <property name="focusPolicy"><enum>Qt::NoFocus</enum></property>
+         <property name="checkable"><bool>true</bool></property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="tUos">
+         <property name="minimumSize"><size><width>40</width><height>0</height></size></property>
+         <property name="toolTip"><string>Unshift on space (receive)</string></property>
+         <property name="text"><string notr="true">UOS</string></property>
+         <property name="focusPolicy"><enum>Qt::NoFocus</enum></property>
+         <property name="checkable"><bool>true</bool></property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="tBpf">
+         <property name="minimumSize"><size><width>40</width><height>0</height></size></property>
+         <property name="toolTip"><string>Receive band-pass filter</string></property>
+         <property name="text"><string notr="true">BPF</string></property>
+         <property name="focusPolicy"><enum>Qt::NoFocus</enum></property>
+         <property name="checkable"><bool>true</bool></property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="tNotch">
+         <property name="minimumSize"><size><width>40</width><height>0</height></size></property>
+         <property name="toolTip"><string>Notch filter (right click on the spectrum to place it)</string></property>
+         <property name="text"><string notr="true">NOTCH</string></property>
+         <property name="focusPolicy"><enum>Qt::NoFocus</enum></property>
+         <property name="checkable"><bool>true</bool></property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="tAtc">
+         <property name="minimumSize"><size><width>40</width><height>0</height></size></property>
+         <property name="toolTip"><string>Automatic threshold control</string></property>
+         <property name="text"><string notr="true">ATC</string></property>
+         <property name="focusPolicy"><enum>Qt::NoFocus</enum></property>
+         <property name="checkable"><bool>true</bool></property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="tSq">
+         <property name="minimumSize"><size><width>40</width><height>0</height></size></property>
+         <property name="toolTip"><string>Squelch</string></property>
+         <property name="text"><string notr="true">SQ</string></property>
+         <property name="focusPolicy"><enum>Qt::NoFocus</enum></property>
+         <property name="checkable"><bool>true</bool></property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="spacer_mark">
+         <property name="orientation"><enum>Qt::Horizontal</enum></property>
+         <property name="sizeType"><enum>QSizePolicy::Fixed</enum></property>
+         <property name="sizeHint" stdset="0"><size><width>8</width><height>20</height></size></property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_mark">
+         <property name="text"><string>Mark</string></property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="markCombo">
+         <property name="minimumSize"><size><width>80</width><height>0</height></size></property>
+         <property name="editable"><bool>true</bool></property>
+         <property name="insertPolicy"><enum>QComboBox::NoInsert</enum></property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="spacer_shift">
+         <property name="orientation"><enum>Qt::Horizontal</enum></property>
+         <property name="sizeType"><enum>QSizePolicy::Fixed</enum></property>
+         <property name="sizeHint" stdset="0"><size><width>8</width><height>20</height></size></property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_shift">
+         <property name="text"><string>Shift</string></property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="shiftCombo">
+         <property name="minimumSize"><size><width>70</width><height>0</height></size></property>
+         <property name="editable"><bool>true</bool></property>
+         <property name="insertPolicy"><enum>QComboBox::NoInsert</enum></property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="spacer_baud">
+         <property name="orientation"><enum>Qt::Horizontal</enum></property>
+         <property name="sizeType"><enum>QSizePolicy::Fixed</enum></property>
+         <property name="sizeHint" stdset="0"><size><width>8</width><height>20</height></size></property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_baud">
+         <property name="text"><string>Baud</string></property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="baudCombo">
+         <property name="minimumSize"><size><width>70</width><height>0</height></size></property>
+         <property name="editable"><bool>true</bool></property>
+         <property name="insertPolicy"><enum>QComboBox::NoInsert</enum></property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="spacer_demod">
+         <property name="orientation"><enum>Qt::Horizontal</enum></property>
+         <property name="sizeType"><enum>QSizePolicy::Fixed</enum></property>
+         <property name="sizeHint" stdset="0"><size><width>8</width><height>20</height></size></property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_demod">
+         <property name="text"><string>Demod</string></property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="demCombo">
+         <item>
+          <property name="text"><string notr="true">IIR</string></property>
+         </item>
+         <item>
+          <property name="text"><string notr="true">FIR</string></property>
+         </item>
+         <item>
+          <property name="text"><string notr="true">PLL</string></property>
+         </item>
+         <item>
+          <property name="text"><string notr="true">FFT</string></property>
+         </item>
+        </widget>
+       </item>
+       <item>
+        <spacer name="spacer_row1">
+         <property name="orientation"><enum>Qt::Horizontal</enum></property>
+         <property name="sizeHint" stdset="0"><size><width>0</width><height>20</height></size></property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="LevelBar" name="level">
+     </widget>
+    </item>
+    <item>
+     <widget class="QSplitter" name="vsplit">
+      <property name="orientation"><enum>Qt::Vertical</enum></property>
+      <property name="childrenCollapsible"><bool>false</bool></property>
+      <widget class="QWidget" name="scopeBox">
+       <property name="sizePolicy"><sizepolicy hsizetype="Preferred" vsizetype="Preferred"><horstretch>2</horstretch><verstretch>2</verstretch></sizepolicy></property>
+       <layout class="QHBoxLayout" name="scopeRow" stretch="1,0">
+        <property name="leftMargin"><number>0</number></property>
+        <property name="topMargin"><number>0</number></property>
+        <property name="rightMargin"><number>0</number></property>
+        <property name="bottomMargin"><number>0</number></property>
+        <item>
+         <layout class="QVBoxLayout" name="scopeCol" stretch="1,1">
+          <item>
+           <widget class="SpectrumView" name="spectrum">
+           </widget>
+          </item>
+          <item>
+           <widget class="WaterfallView" name="water">
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="XYView" name="xy">
+          <property name="minimumSize"><size><width>110</width><height>0</height></size></property>
+          <property name="maximumSize"><size><width>240</width><height>16777215</height></size></property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QPlainTextEdit" name="rxView">
+       <property name="sizePolicy"><sizepolicy hsizetype="Expanding" vsizetype="Expanding"><horstretch>3</horstretch><verstretch>3</verstretch></sizepolicy></property>
+       <property name="readOnly"><bool>true</bool></property>
+       <property name="maximumBlockCount"><number>10000</number></property>
+      </widget>
+      <widget class="QPlainTextEdit" name="txEdit">
+       <property name="sizePolicy"><sizepolicy hsizetype="Expanding" vsizetype="Expanding"><horstretch>1</horstretch><verstretch>1</verstretch></sizepolicy></property>
+       <property name="undoRedoEnabled"><bool>false</bool></property>
+       <property name="placeholderText"><string>Type here, then press TX. Text is sent as it is typed while transmitting.</string></property>
+      </widget>
+     </widget>
+    </item>
+    <item>
+     <widget class="QWidget" name="qsoBox">
+      <layout class="QHBoxLayout" name="qsoLayout">
+       <property name="leftMargin"><number>0</number></property>
+       <property name="topMargin"><number>0</number></property>
+       <property name="rightMargin"><number>0</number></property>
+       <property name="bottomMargin"><number>0</number></property>
+       <item>
+        <widget class="QLabel" name="label_hisCall">
+         <property name="text"><string>Call</string></property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="hisCall">
+         <property name="minimumSize"><size><width>100</width><height>0</height></size></property>
+         <property name="maximumSize"><size><width>100</width><height>16777215</height></size></property>
+         <property name="maxLength"><number>16</number></property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_hisName">
+         <property name="text"><string>Name</string></property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="hisName">
+         <property name="minimumSize"><size><width>100</width><height>0</height></size></property>
+         <property name="maximumSize"><size><width>100</width><height>16777215</height></size></property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_hisQth">
+         <property name="text"><string>QTH</string></property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="hisQth">
+         <property name="minimumSize"><size><width>120</width><height>0</height></size></property>
+         <property name="maximumSize"><size><width>120</width><height>16777215</height></size></property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_hisRst">
+         <property name="text"><string>His RST</string></property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="hisRst">
+         <property name="minimumSize"><size><width>50</width><height>0</height></size></property>
+         <property name="maximumSize"><size><width>50</width><height>16777215</height></size></property>
+         <property name="text"><string notr="true">599</string></property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_myRst">
+         <property name="text"><string>My RST</string></property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="myRst">
+         <property name="minimumSize"><size><width>50</width><height>0</height></size></property>
+         <property name="maximumSize"><size><width>50</width><height>16777215</height></size></property>
+         <property name="text"><string notr="true">599</string></property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="logBtn">
+         <property name="focusPolicy"><enum>Qt::NoFocus</enum></property>
+         <property name="text"><string>Log QSO</string></property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="spacer_qso">
+         <property name="orientation"><enum>Qt::Horizontal</enum></property>
+         <property name="sizeHint" stdset="0"><size><width>0</width><height>20</height></size></property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QWidget" name="txBox">
+      <layout class="QHBoxLayout" name="txLayout">
+       <property name="leftMargin"><number>0</number></property>
+       <property name="topMargin"><number>0</number></property>
+       <property name="rightMargin"><number>0</number></property>
+       <property name="bottomMargin"><number>0</number></property>
+       <item>
+        <widget class="QPushButton" name="btnTx">
+         <property name="minimumSize"><size><width>70</width><height>0</height></size></property>
+         <property name="toolTip"><string>Toggle transmit (Ctrl+T). While transmitting: send the remaining text, then return to receive.</string></property>
+         <property name="text"><string>TX</string></property>
+         <property name="focusPolicy"><enum>Qt::NoFocus</enum></property>
+         <property name="checkable"><bool>true</bool></property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnTxOff">
+         <property name="toolTip"><string>Abort transmission immediately (Esc)</string></property>
+         <property name="text"><string>TX OFF</string></property>
+         <property name="focusPolicy"><enum>Qt::NoFocus</enum></property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="spacer_tx">
+         <property name="orientation"><enum>Qt::Horizontal</enum></property>
+         <property name="sizeType"><enum>QSizePolicy::Fixed</enum></property>
+         <property name="sizeHint" stdset="0"><size><width>12</width><height>20</height></size></property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QPushButton" name="inBtn1">
+         <property name="focusPolicy"><enum>Qt::NoFocus</enum></property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="inBtn2">
+         <property name="focusPolicy"><enum>Qt::NoFocus</enum></property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="inBtn3">
+         <property name="focusPolicy"><enum>Qt::NoFocus</enum></property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="inBtn4">
+         <property name="focusPolicy"><enum>Qt::NoFocus</enum></property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="spacer_tx_end">
+         <property name="orientation"><enum>Qt::Horizontal</enum></property>
+         <property name="sizeHint" stdset="0"><size><width>0</width><height>20</height></size></property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QWidget" name="macroBox">
+      <layout class="QGridLayout" name="macroGrid">
+       <property name="leftMargin"><number>0</number></property>
+       <property name="topMargin"><number>0</number></property>
+       <property name="rightMargin"><number>0</number></property>
+       <property name="bottomMargin"><number>0</number></property>
+       <item row="0" column="0">
+        <widget class="QPushButton" name="macroBtn1">
+         <property name="minimumSize"><size><width>60</width><height>0</height></size></property>
+         <property name="focusPolicy"><enum>Qt::NoFocus</enum></property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QPushButton" name="macroBtn2">
+         <property name="minimumSize"><size><width>60</width><height>0</height></size></property>
+         <property name="focusPolicy"><enum>Qt::NoFocus</enum></property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QPushButton" name="macroBtn3">
+         <property name="minimumSize"><size><width>60</width><height>0</height></size></property>
+         <property name="focusPolicy"><enum>Qt::NoFocus</enum></property>
+        </widget>
+       </item>
+       <item row="0" column="3">
+        <widget class="QPushButton" name="macroBtn4">
+         <property name="minimumSize"><size><width>60</width><height>0</height></size></property>
+         <property name="focusPolicy"><enum>Qt::NoFocus</enum></property>
+        </widget>
+       </item>
+       <item row="0" column="4">
+        <widget class="QPushButton" name="macroBtn5">
+         <property name="minimumSize"><size><width>60</width><height>0</height></size></property>
+         <property name="focusPolicy"><enum>Qt::NoFocus</enum></property>
+        </widget>
+       </item>
+       <item row="0" column="5">
+        <widget class="QPushButton" name="macroBtn6">
+         <property name="minimumSize"><size><width>60</width><height>0</height></size></property>
+         <property name="focusPolicy"><enum>Qt::NoFocus</enum></property>
+        </widget>
+       </item>
+       <item row="0" column="6">
+        <widget class="QPushButton" name="macroBtn7">
+         <property name="minimumSize"><size><width>60</width><height>0</height></size></property>
+         <property name="focusPolicy"><enum>Qt::NoFocus</enum></property>
+        </widget>
+       </item>
+       <item row="0" column="7">
+        <widget class="QPushButton" name="macroBtn8">
+         <property name="minimumSize"><size><width>60</width><height>0</height></size></property>
+         <property name="focusPolicy"><enum>Qt::NoFocus</enum></property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QPushButton" name="macroBtn9">
+         <property name="minimumSize"><size><width>60</width><height>0</height></size></property>
+         <property name="focusPolicy"><enum>Qt::NoFocus</enum></property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QPushButton" name="macroBtn10">
+         <property name="minimumSize"><size><width>60</width><height>0</height></size></property>
+         <property name="focusPolicy"><enum>Qt::NoFocus</enum></property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QPushButton" name="macroBtn11">
+         <property name="minimumSize"><size><width>60</width><height>0</height></size></property>
+         <property name="focusPolicy"><enum>Qt::NoFocus</enum></property>
+        </widget>
+       </item>
+       <item row="1" column="3">
+        <widget class="QPushButton" name="macroBtn12">
+         <property name="minimumSize"><size><width>60</width><height>0</height></size></property>
+         <property name="focusPolicy"><enum>Qt::NoFocus</enum></property>
+        </widget>
+       </item>
+       <item row="1" column="4">
+        <widget class="QPushButton" name="macroBtn13">
+         <property name="minimumSize"><size><width>60</width><height>0</height></size></property>
+         <property name="focusPolicy"><enum>Qt::NoFocus</enum></property>
+        </widget>
+       </item>
+       <item row="1" column="5">
+        <widget class="QPushButton" name="macroBtn14">
+         <property name="minimumSize"><size><width>60</width><height>0</height></size></property>
+         <property name="focusPolicy"><enum>Qt::NoFocus</enum></property>
+        </widget>
+       </item>
+       <item row="1" column="6">
+        <widget class="QPushButton" name="macroBtn15">
+         <property name="minimumSize"><size><width>60</width><height>0</height></size></property>
+         <property name="focusPolicy"><enum>Qt::NoFocus</enum></property>
+        </widget>
+       </item>
+       <item row="1" column="7">
+        <widget class="QPushButton" name="macroBtn16">
+         <property name="minimumSize"><size><width>60</width><height>0</height></size></property>
+         <property name="focusPolicy"><enum>Qt::NoFocus</enum></property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <widget class="QMenu" name="menuFile">
+    <property name="title"><string>&amp;File</string></property>
+    <addaction name="actionPlayWav"/>
+    <addaction name="actionRecordWav"/>
+    <addaction name="actionStopFile"/>
+    <addaction name="separator"/>
+    <addaction name="actionSettings"/>
+    <addaction name="separator"/>
+    <addaction name="actionQuit"/>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title"><string>&amp;View</string></property>
+    <widget class="QMenu" name="menuGain">
+     <property name="title"><string>Spectrum &amp;gain</string></property>
+     <addaction name="actionGain0"/>
+     <addaction name="actionGain1"/>
+     <addaction name="actionGain2"/>
+     <addaction name="actionGain3"/>
+     <addaction name="actionGain4"/>
+     <addaction name="actionGain5"/>
+     <addaction name="actionGain6"/>
+     <addaction name="actionGain7"/>
+    </widget>
+    <widget class="QMenu" name="menuWidth">
+     <property name="title"><string>Spectrum &amp;width</string></property>
+     <addaction name="actionRange0"/>
+     <addaction name="actionRange1"/>
+     <addaction name="actionRange2"/>
+     <addaction name="actionRange3"/>
+     <addaction name="actionRange4"/>
+     <addaction name="actionRange5"/>
+    </widget>
+    <addaction name="actionWaterfall"/>
+    <addaction name="actionXY"/>
+    <addaction name="menuGain"/>
+    <addaction name="menuWidth"/>
+   </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title"><string>&amp;Tools</string></property>
+    <addaction name="actionTest"/>
+    <addaction name="actionLogQso"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title"><string>&amp;Help</string></property>
+    <addaction name="actionAbout"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuView"/>
+   <addaction name="menuTools"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar">
+  </widget>
+  <action name="actionPlayWav">
+   <property name="text"><string>&amp;Play WAV file...</string></property>
+  </action>
+  <action name="actionRecordWav">
+   <property name="text"><string>&amp;Record WAV file...</string></property>
+  </action>
+  <action name="actionStopFile">
+   <property name="text"><string>&amp;Stop file</string></property>
+  </action>
+  <action name="actionSettings">
+   <property name="text"><string>&amp;Settings...</string></property>
+  </action>
+  <action name="actionQuit">
+   <property name="text"><string>&amp;Quit</string></property>
+  </action>
+  <action name="actionWaterfall">
+   <property name="checkable"><bool>true</bool></property>
+   <property name="text"><string>&amp;Waterfall</string></property>
+  </action>
+  <action name="actionXY">
+   <property name="checkable"><bool>true</bool></property>
+   <property name="text"><string>&amp;XY scope</string></property>
+  </action>
+  <action name="actionTest">
+   <property name="checkable"><bool>true</bool></property>
+   <property name="text"><string>&amp;Test signal generator</string></property>
+  </action>
+  <action name="actionLogQso">
+   <property name="text"><string>&amp;Log QSO</string></property>
+   <property name="shortcut"><string notr="true">Ctrl+L</string></property>
+  </action>
+  <action name="actionAbout">
+   <property name="text"><string>&amp;About</string></property>
+  </action>
+  <actiongroup name="gainGroup">
+   <action name="actionGain0">
+    <property name="checkable"><bool>true</bool></property>
+    <property name="text"><string>Low</string></property>
+   </action>
+   <action name="actionGain1">
+    <property name="checkable"><bool>true</bool></property>
+    <property name="text"><string>Medium</string></property>
+   </action>
+   <action name="actionGain2">
+    <property name="checkable"><bool>true</bool></property>
+    <property name="text"><string>High</string></property>
+   </action>
+   <action name="actionGain3">
+    <property name="checkable"><bool>true</bool></property>
+    <property name="text"><string>Very high</string></property>
+   </action>
+   <action name="actionGain4">
+    <property name="checkable"><bool>true</bool></property>
+    <property name="text"><string>Auto 85%</string></property>
+   </action>
+   <action name="actionGain5">
+    <property name="checkable"><bool>true</bool></property>
+    <property name="text"><string>Auto 100%</string></property>
+   </action>
+   <action name="actionGain6">
+    <property name="checkable"><bool>true</bool></property>
+    <property name="text"><string>Auto 120%</string></property>
+   </action>
+   <action name="actionGain7">
+    <property name="checkable"><bool>true</bool></property>
+    <property name="text"><string>Auto 150%</string></property>
+   </action>
+  </actiongroup>
+  <actiongroup name="rangeGroup">
+   <action name="actionRange0">
+    <property name="checkable"><bool>true</bool></property>
+    <property name="text"><string>Automatic</string></property>
+   </action>
+   <action name="actionRange1">
+    <property name="checkable"><bool>true</bool></property>
+    <property name="text"><string>500 Hz</string></property>
+   </action>
+   <action name="actionRange2">
+    <property name="checkable"><bool>true</bool></property>
+    <property name="text"><string>1000 Hz</string></property>
+   </action>
+   <action name="actionRange3">
+    <property name="checkable"><bool>true</bool></property>
+    <property name="text"><string>1500 Hz</string></property>
+   </action>
+   <action name="actionRange4">
+    <property name="checkable"><bool>true</bool></property>
+    <property name="text"><string>2000 Hz</string></property>
+   </action>
+   <action name="actionRange5">
+    <property name="checkable"><bool>true</bool></property>
+    <property name="text"><string>3000 Hz</string></property>
+   </action>
+  </actiongroup>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>LevelBar</class>
+   <extends>QWidget</extends>
+   <header>Scopes.h</header>
+  </customwidget>
+  <customwidget>
+   <class>SpectrumView</class>
+   <extends>QWidget</extends>
+   <header>Scopes.h</header>
+  </customwidget>
+  <customwidget>
+   <class>WaterfallView</class>
+   <extends>QWidget</extends>
+   <header>Scopes.h</header>
+  </customwidget>
+  <customwidget>
+   <class>XYView</class>
+   <extends>QWidget</extends>
+   <header>Scopes.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

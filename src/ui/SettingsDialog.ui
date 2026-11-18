@@ -1,0 +1,462 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SettingsDialog</class>
+ <widget class="QDialog" name="SettingsDialog">
+  <property name="geometry"><rect><x>0</x><y>0</y><width>720</width><height>520</height></rect></property>
+  <property name="windowTitle"><string>MMTTY Settings</string></property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QTabWidget" name="tabs">
+     <property name="currentIndex"><number>0</number></property>
+     <widget class="QWidget" name="stationPage">
+      <attribute name="title"><string>Station</string></attribute>
+      <layout class="QFormLayout" name="stationForm">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_call">
+         <property name="text"><string>My call sign</string></property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLineEdit" name="call">
+         <property name="maxLength"><number>16</number></property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="soundPage">
+      <attribute name="title"><string>Sound &amp;&amp; PTT</string></attribute>
+      <layout class="QFormLayout" name="soundForm">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_inputDevice">
+         <property name="text"><string>Sound input</string></property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QComboBox" name="inputDevice">
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_outputDevice">
+         <property name="text"><string>Sound output</string></property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QComboBox" name="outputDevice">
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_channel">
+         <property name="text"><string>Input channel</string></property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QComboBox" name="channel">
+         <item>
+          <property name="text"><string notr="true">Left / mono</string></property>
+         </item>
+         <item>
+          <property name="text"><string notr="true">Right</string></property>
+         </item>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_rate">
+         <property name="text"><string>Sampling rate (needs restart)</string></property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QComboBox" name="rate">
+         <item>
+          <property name="text"><string notr="true">11025 Hz</string></property>
+         </item>
+         <item>
+          <property name="text"><string notr="true">12000 Hz</string></property>
+         </item>
+         <item>
+          <property name="text"><string notr="true">8000 Hz</string></property>
+         </item>
+         <item>
+          <property name="text"><string notr="true">6000 Hz</string></property>
+         </item>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="label_txOffset">
+         <property name="text"><string>TX clock correction (Hz)</string></property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QDoubleSpinBox" name="txOffset">
+         <property name="decimals"><number>1</number></property>
+         <property name="minimum"><double>-1000.0</double></property>
+         <property name="maximum"><double>1000.0</double></property>
+         <property name="singleStep"><double>0.1</double></property>
+         <property name="value"><double>0.0</double></property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QLabel" name="label_pttPort">
+         <property name="text"><string>PTT / FSK serial port</string></property>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <widget class="QComboBox" name="pttPort">
+        </widget>
+       </item>
+       <item row="6" column="0">
+        <widget class="QLabel" name="label_pttLines">
+         <property name="text"><string>PTT line</string></property>
+        </widget>
+       </item>
+       <item row="6" column="1">
+        <widget class="QComboBox" name="pttLines">
+         <item>
+          <property name="text"><string notr="true">None</string></property>
+         </item>
+         <item>
+          <property name="text"><string notr="true">RTS</string></property>
+         </item>
+         <item>
+          <property name="text"><string notr="true">DTR</string></property>
+         </item>
+         <item>
+          <property name="text"><string notr="true">RTS + DTR</string></property>
+         </item>
+        </widget>
+       </item>
+       <item row="7" column="1">
+        <widget class="QCheckBox" name="pttInvert">
+         <property name="text"><string>Invert PTT polarity</string></property>
+        </widget>
+       </item>
+       <item row="8" column="0">
+        <widget class="QLabel" name="label_fskLine">
+         <property name="text"><string>FSK line</string></property>
+        </widget>
+       </item>
+       <item row="8" column="1">
+        <widget class="QComboBox" name="fskLine">
+         <property name="toolTip"><string>Software FSK: the selected control line is toggled with exact bit timing instead of sending audio. Wire it to the radio's FSK input. It cannot also be a PTT line.</string></property>
+         <item>
+          <property name="text"><string notr="true">Off (AFSK through the sound card)</string></property>
+         </item>
+         <item>
+          <property name="text"><string notr="true">DTR</string></property>
+         </item>
+         <item>
+          <property name="text"><string notr="true">RTS</string></property>
+         </item>
+        </widget>
+       </item>
+       <item row="9" column="1">
+        <widget class="QCheckBox" name="fskInvert">
+         <property name="text"><string>Invert FSK polarity (mark = line off)</string></property>
+        </widget>
+       </item>
+       <item row="10" column="1">
+        <widget class="QPushButton" name="rescanButton">
+         <property name="text"><string>Rescan ports</string></property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="txPage">
+      <attribute name="title"><string>Transmit &amp;&amp; AFC</string></attribute>
+      <layout class="QFormLayout" name="txForm">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_echo">
+         <property name="text"><string>Echo</string></property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QComboBox" name="echo">
+         <item>
+          <property name="text"><string notr="true">Direct (no echo)</string></property>
+         </item>
+         <item>
+          <property name="text"><string notr="true">Sound loopback echo</string></property>
+         </item>
+         <item>
+          <property name="text"><string notr="true">External echo (receiver stays open)</string></property>
+         </item>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_dataBits">
+         <property name="text"><string>Data bits</string></property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QComboBox" name="dataBits">
+         <item>
+          <property name="text"><string notr="true">5</string></property>
+         </item>
+         <item>
+          <property name="text"><string notr="true">6</string></property>
+         </item>
+         <item>
+          <property name="text"><string notr="true">7</string></property>
+         </item>
+         <item>
+          <property name="text"><string notr="true">8</string></property>
+         </item>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_stopBits">
+         <property name="text"><string>Stop bits</string></property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QComboBox" name="stopBits">
+         <item>
+          <property name="text"><string notr="true">1</string></property>
+         </item>
+         <item>
+          <property name="text"><string notr="true">1.5</string></property>
+         </item>
+         <item>
+          <property name="text"><string notr="true">2</string></property>
+         </item>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_parity">
+         <property name="text"><string>Parity</string></property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QComboBox" name="parity">
+         <item>
+          <property name="text"><string notr="true">None</string></property>
+         </item>
+         <item>
+          <property name="text"><string notr="true">Even</string></property>
+         </item>
+         <item>
+          <property name="text"><string notr="true">Odd</string></property>
+         </item>
+         <item>
+          <property name="text"><string notr="true">Mark</string></property>
+         </item>
+         <item>
+          <property name="text"><string notr="true">Space</string></property>
+         </item>
+        </widget>
+       </item>
+       <item row="4" column="0" colspan="2">
+        <widget class="QCheckBox" name="txNet">
+         <property name="text"><string>TX frequency follows RX (NET)</string></property>
+        </widget>
+       </item>
+       <item row="5" column="0" colspan="2">
+        <widget class="QCheckBox" name="txFix">
+         <property name="text"><string>Use the fixed shift below when transmitting</string></property>
+        </widget>
+       </item>
+       <item row="6" column="0">
+        <widget class="QLabel" name="label_defMark">
+         <property name="text"><string>Default TX mark (Hz)</string></property>
+        </widget>
+       </item>
+       <item row="6" column="1">
+        <widget class="QDoubleSpinBox" name="defMark">
+         <property name="decimals"><number>0</number></property>
+         <property name="minimum"><double>300</double></property>
+         <property name="maximum"><double>2700</double></property>
+         <property name="singleStep"><double>1</double></property>
+         <property name="value"><double>2125</double></property>
+        </widget>
+       </item>
+       <item row="7" column="0">
+        <widget class="QLabel" name="label_defShift">
+         <property name="text"><string>Default TX shift (Hz)</string></property>
+        </widget>
+       </item>
+       <item row="7" column="1">
+        <widget class="QDoubleSpinBox" name="defShift">
+         <property name="decimals"><number>0</number></property>
+         <property name="minimum"><double>10</double></property>
+         <property name="maximum"><double>2000</double></property>
+         <property name="singleStep"><double>1</double></property>
+         <property name="value"><double>170</double></property>
+        </widget>
+       </item>
+       <item row="8" column="0" colspan="2">
+        <widget class="QCheckBox" name="txUos">
+         <property name="text"><string>Unshift on space (transmit)</string></property>
+        </widget>
+       </item>
+       <item row="9" column="0" colspan="2">
+        <widget class="QCheckBox" name="rxUos">
+         <property name="text"><string>Unshift on space (receive)</string></property>
+        </widget>
+       </item>
+       <item row="10" column="0">
+        <widget class="QLabel" name="label_afcMode">
+         <property name="text"><string>AFC mode</string></property>
+        </widget>
+       </item>
+       <item row="10" column="1">
+        <widget class="QComboBox" name="afcMode">
+         <item>
+          <property name="text"><string notr="true">Free shift</string></property>
+         </item>
+         <item>
+          <property name="text"><string notr="true">Fixed shift</string></property>
+         </item>
+         <item>
+          <property name="text"><string notr="true">Ham shifts (170/200/220/240)</string></property>
+         </item>
+        </widget>
+       </item>
+       <item row="11" column="0">
+        <widget class="QLabel" name="label_afcSquelch">
+         <property name="text"><string>AFC squelch</string></property>
+        </widget>
+       </item>
+       <item row="11" column="1">
+        <widget class="QSpinBox" name="afcSquelch">
+         <property name="minimum"><number>1</number></property>
+         <property name="maximum"><number>255</number></property>
+        </widget>
+       </item>
+       <item row="12" column="0">
+        <widget class="QLabel" name="label_afcTime">
+         <property name="text"><string>AFC time constant</string></property>
+        </widget>
+       </item>
+       <item row="12" column="1">
+        <widget class="QDoubleSpinBox" name="afcTime">
+         <property name="decimals"><number>1</number></property>
+         <property name="minimum"><double>1.0</double></property>
+         <property name="maximum"><double>64.0</double></property>
+         <property name="singleStep"><double>0.5</double></property>
+         <property name="value"><double>8.0</double></property>
+        </widget>
+       </item>
+       <item row="13" column="0">
+        <widget class="QLabel" name="label_afcSweep">
+         <property name="text"><string>AFC sweep range</string></property>
+        </widget>
+       </item>
+       <item row="13" column="1">
+        <widget class="QDoubleSpinBox" name="afcSweep">
+         <property name="decimals"><number>1</number></property>
+         <property name="minimum"><double>0.5</double></property>
+         <property name="maximum"><double>3.0</double></property>
+         <property name="singleStep"><double>0.1</double></property>
+         <property name="value"><double>1.0</double></property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="macroPage">
+      <attribute name="title"><string>Macros</string></attribute>
+      <layout class="QVBoxLayout" name="macroLayout">
+       <item>
+        <widget class="QLabel" name="macroHelp">
+         <property name="text"><string>%m my call  %c his call  %n name  %q QTH  %r his RST  %s my RST  %L LTRS  %F FIGS  %D/%T/%t date/time  %{TEXT} CW ID
+_ mark  ~ carrier off  [ ] diddle off/on  trailing \ = back to receive  trailing # = repeat.   \r \n \\ are escapes.</string></property>
+         <property name="wordWrap"><bool>true</bool></property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTableWidget" name="macroTable">
+         <attribute name="horizontalHeaderStretchLastSection"><bool>true</bool></attribute>
+         <row>
+          <property name="text"><string notr="true">M1</string></property>
+         </row>
+         <row>
+          <property name="text"><string notr="true">M2</string></property>
+         </row>
+         <row>
+          <property name="text"><string notr="true">M3</string></property>
+         </row>
+         <row>
+          <property name="text"><string notr="true">M4</string></property>
+         </row>
+         <row>
+          <property name="text"><string notr="true">M5</string></property>
+         </row>
+         <row>
+          <property name="text"><string notr="true">M6</string></property>
+         </row>
+         <row>
+          <property name="text"><string notr="true">M7</string></property>
+         </row>
+         <row>
+          <property name="text"><string notr="true">M8</string></property>
+         </row>
+         <row>
+          <property name="text"><string notr="true">M9</string></property>
+         </row>
+         <row>
+          <property name="text"><string notr="true">M10</string></property>
+         </row>
+         <row>
+          <property name="text"><string notr="true">M11</string></property>
+         </row>
+         <row>
+          <property name="text"><string notr="true">M12</string></property>
+         </row>
+         <row>
+          <property name="text"><string notr="true">M13</string></property>
+         </row>
+         <row>
+          <property name="text"><string notr="true">M14</string></property>
+         </row>
+         <row>
+          <property name="text"><string notr="true">M15</string></property>
+         </row>
+         <row>
+          <property name="text"><string notr="true">M16</string></property>
+         </row>
+         <row>
+          <property name="text"><string notr="true">IN1</string></property>
+         </row>
+         <row>
+          <property name="text"><string notr="true">IN2</string></property>
+         </row>
+         <row>
+          <property name="text"><string notr="true">IN3</string></property>
+         </row>
+         <row>
+          <property name="text"><string notr="true">IN4</string></property>
+         </row>
+         <column>
+          <property name="text"><string>Name</string></property>
+         </column>
+         <column>
+          <property name="text"><string>Text</string></property>
+         </column>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation"><enum>Qt::Horizontal</enum></property>
+     <property name="standardButtons"><set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set></property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>accept()</slot>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>reject()</slot>
+  </connection>
+ </connections>
+</ui>

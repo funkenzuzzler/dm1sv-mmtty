@@ -1,4 +1,4 @@
-// Main window: the Qt replacement of the original TMmttyWd form.
+// Main window: the Qt replacement of the original TMmttyWd form.  The layout lives in MainWindow.ui.
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
@@ -15,21 +15,11 @@
 #include "Macro.h"
 #include "QsoLog.h"
 
-class QAction;
-class QActionGroup;
-class QComboBox;
 class QLabel;
-class QMenu;
-class QLineEdit;
-class QPlainTextEdit;
 class QPushButton;
-class QSplitter;
-class QToolButton;
-class LevelBar;
 class RemoteApi;
-class SpectrumView;
-class WaterfallView;
-class XYView;
+
+namespace Ui { class MainWindow; }
 
 class MainWindow : public QMainWindow
 {
@@ -85,9 +75,7 @@ private slots:
 private:
 	friend class RemoteApi;
 
-	void buildUi();
-	void buildMenus();
-	void setupToggle(QToolButton *b, const QString &text, const QString &tip, bool on);
+	void setupUi();							// wires the widgets and actions created from MainWindow.ui
 	void pushSettings();
 	void updateTuningCombos();
 	void updateMacroButtons();
@@ -120,26 +108,11 @@ private:
 	QsoLog m_log;
 	QTimer m_timer;
 
-	// widgets
-	QWidget *m_row1Box = nullptr, *m_qsoBox = nullptr, *m_txBox = nullptr, *m_macroBox = nullptr;
-	QMenu *m_menuFile = nullptr, *m_menuTools = nullptr, *m_menuHelp = nullptr;
-	QAction *m_actSettings = nullptr;
-	QPushButton *m_btnTx = nullptr, *m_btnTxOff = nullptr;
+	// widgets (the others are members of ui)
+	std::unique_ptr<Ui::MainWindow> ui;
 	QPushButton *m_macroBtn[AppSettings::kMacros] = {};
 	QPushButton *m_inBtn[AppSettings::kInputButtons] = {};
-	QToolButton *m_tAfc = nullptr, *m_tNet = nullptr, *m_tRev = nullptr, *m_tUos = nullptr,
-	            *m_tBpf = nullptr, *m_tNotch = nullptr, *m_tAtc = nullptr, *m_tSq = nullptr;
-	QComboBox *m_markCombo = nullptr, *m_shiftCombo = nullptr, *m_baudCombo = nullptr, *m_demCombo = nullptr;
-	SpectrumView *m_spectrum = nullptr;
-	WaterfallView *m_water = nullptr;
-	XYView *m_xy = nullptr;
-	LevelBar *m_level = nullptr;
-	QPlainTextEdit *m_rxView = nullptr, *m_txEdit = nullptr;
-	QLineEdit *m_hisCall = nullptr, *m_hisName = nullptr, *m_hisQth = nullptr, *m_hisRst = nullptr, *m_myRst = nullptr;
 	QLabel *m_stTx = nullptr, *m_stFig = nullptr, *m_stTune = nullptr;
-	QSplitter *m_vsplit = nullptr;
-	QAction *m_actWater = nullptr, *m_actXY = nullptr, *m_actTest = nullptr, *m_actStopFile = nullptr;
-	QActionGroup *m_gainGroup = nullptr, *m_rangeGroup = nullptr;
 
 	// transmit state (original: SBTX->Down, m_Macro, m_MacroStat, m_ReqRecv, m_NowStr, m_FifoOutTimer)
 	bool       m_txDown = false;

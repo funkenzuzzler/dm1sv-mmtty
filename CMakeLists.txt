@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "" FORCE)
@@ -68,16 +69,19 @@ if(MMTTY_BUILD_APP)
 add_library(mmtty_ui STATIC
     src/ui/MainWindow.cpp
     src/ui/MainWindow.h
+    src/ui/MainWindow.ui
     src/ui/Scopes.cpp
     src/ui/Scopes.h
     src/ui/SettingsDialog.cpp
     src/ui/SettingsDialog.h
+    src/ui/SettingsDialog.ui
     src/ui/AppSettings.cpp
     src/ui/AppSettings.h
     src/ui/QsoLog.cpp
     src/ui/QsoLog.h
 )
 target_include_directories(mmtty_ui PUBLIC src/ui)
+set_target_properties(mmtty_ui PROPERTIES AUTOUIC_SEARCH_PATHS ${CMAKE_CURRENT_SOURCE_DIR}/src/ui)
 target_link_libraries(mmtty_ui PUBLIC mmtty_engine Qt6::Widgets)
 if(MMTTY_REMOTE_API)
     target_sources(mmtty_ui PRIVATE

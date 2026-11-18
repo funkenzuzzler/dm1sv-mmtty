@@ -13,6 +13,7 @@
 #include <cmath>
 
 #include "MainWindow.h"
+#include "ui_MainWindow.h"
 #include "compat.h"
 
 using namespace remote;
@@ -575,7 +576,7 @@ void RemoteApi::cmdPtt(int mode)
 	switch( mode ){
 		case 0:
 		case 5:
-			if( viaTx ) w.m_txEdit->clear();
+			if( viaTx ) w.ui->txEdit->clear();
 			w.toRx(mode == 0);
 			break;
 		case 1:
@@ -595,7 +596,7 @@ void RemoteApi::cmdPtt(int mode)
 			w.toTx(QByteArray("~"), true);
 			break;
 		case 4:
-			if( viaTx ) w.m_txEdit->clear();
+			if( viaTx ) w.ui->txEdit->clear();
 			w.m_engine->clearTxBuffer();
 			break;
 		default:
@@ -621,7 +622,7 @@ void RemoteApi::cmdChar(int c)
 void RemoteApi::pushKey(char key)
 {
 	MainWindow &w = *m_w;
-	QTextDocument *doc = w.m_txEdit->document();
+	QTextDocument *doc = w.ui->txEdit->document();
 	QTextCursor cur(doc);
 	cur.movePosition(QTextCursor::End);
 	auto put = [&](char c) {

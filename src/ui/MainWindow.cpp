@@ -33,6 +33,7 @@
 #include "Scopes.h"
 #include "SettingsDialog.h"
 #include "compat.h"
+#include "ui_MainWindow.h"
 
 namespace {
 
@@ -52,7 +53,7 @@ QString num(double v)
 // construction
 // ===========================================================================
 MainWindow::MainWindow(const Options &opt, QWidget *parent)
-	: QMainWindow(parent), m_opt(opt)
+	: QMainWindow(parent), m_opt(opt), ui(new Ui::MainWindow)
 {
 	if( opt.iniPath.isEmpty() )
 		m_ini.reset(new QSettings(QSettings::IniFormat, QSettings::UserScope, QStringLiteral("mmtty-qt"), QStringLiteral("mmtty")));
@@ -65,9 +66,8 @@ MainWindow::MainWindow(const Options &opt, QWidget *parent)
 	cfg.realtime = !opt.freeRun;
 	m_engine.reset(new Engine(cfg));
 
-	setWindowTitle(QStringLiteral("MMTTY"));
-	buildUi();
-	buildMenus();
+	ui->setupUi(this);
+	setupUi();
 
 	connect(m_engine.get(), &Engine::rxText, this, &MainWindow::onRxText);
 	connect(m_engine.get(), &Engine::txStateChanged, this, &MainWindow::onTxState);
@@ -89,12 +89,9 @@ MainWindow::MainWindow(const Options &opt, QWidget *parent)
 
 	if( m_ini->contains(windowKey() + QStringLiteral("/geometry")) ){
 		restoreGeometry(m_ini->value(windowKey() + QStringLiteral("/geometry")).toByteArray());
-		m_vsplit->restoreState(m_ini->value(windowKey() + QStringLiteral("/split")).toByteArray());
+		ui->vsplit->restoreState(m_ini->value(windowKey() + QStringLiteral("/split")).toByteArray());
 	}
-	else {
-		resize(900, 780);
-	}
-	m_txEdit->setFocus();
+	ui->txEdit->setFocus();
 }
 
 MainWindow::~MainWindow()
@@ -103,205 +100,86 @@ MainWindow::~MainWindow()
 	if( m_engine ) m_engine->stop();
 }
 
-void MainWindow::setupToggle(QToolButton *b, const QString &text, const QString &tip, bool on)
+void MainWindow::setupUi()
 {
-	b->setText(text);
-	b->setToolTip(tip);
-	b->setCheckable(true);
-	b->setChecked(on);
-	b->setFocusPolicy(Qt::NoFocus);
-	b->setMinimumWidth(40);
-}
-
-void MainWindow::buildUi()
-{
-	auto *central = new QWidget;
-	setCentralWidget(central);
-	auto *root = new QVBoxLayout(central);
-	root->setContentsMargins(6, 6, 6, 6);
-
 	// ---- row 1: toggles, tuning, demodulator ----------------------------------------
-	m_row1Box = new QWidget;
-	auto *row1 = new QHBoxLayout(m_row1Box);
-	row1->setContentsMargins(0, 0, 0, 0);
-	auto addToggle = [&](QToolButton *&ptr, const QString &t, const QString &tip, bool on, std::function<void(bool)> fn) {
-		ptr = new QToolButton;
-		setupToggle(ptr, t, tip, on);
-		connect(ptr, &QToolButton::clicked, this, [fn](bool c) { fn(c); });
-		row1->addWidget(ptr);
+	auto toggle = [&](QToolButton *b, std::function<void(bool)> fn) {
+		connect(b, &QToolButton::clicked, this, [fn](bool c) { fn(c); });
 	};
-	addToggle(m_tAfc, QStringLiteral("AFC"), tr("Automatic frequency control"), m_s.afc, [this](bool on) {
+	toggle(ui->tAfc, [this](bool on) {
 		m_s.afc = on;
 		m_engine->setAfc(on);
 	});
-	addToggle(m_tNet, QStringLiteral("NET"), tr("Transmit on the receive frequency"), m_s.txNet, [this](bool on) {
+	toggle(ui->tNet, [this](bool on) {
 		m_s.txNet = on;
 		m_engine->setTxNet(on, m_s.txFixShift, m_s.defMark, m_s.defShift);
 	});
-	addToggle(m_tRev, QStringLiteral("REV"), tr("Reverse mark and space"), m_s.reverse, [this](bool on) {
+	toggle(ui->tRev, [this](bool on) {
 		m_s.reverse = on;
 		m_engine->setReverse(on);
 	});
-	addToggle(m_tUos, QStringLiteral("UOS"), tr("Unshift on space (receive)"), m_s.uos, [this](bool on) {
+	toggle(ui->tUos, [this](bool on) {
 		m_s.uos = on;
 		m_engine->setUos(on, m_s.txUos);
 	});
-	addToggle(m_tBpf, QStringLiteral("BPF"), tr("Receive band-pass filter"), m_s.bpf, [this](bool on) {
+	toggle(ui->tBpf, [this](bool on) {
 		m_s.bpf = on;
 		m_engine->setBandpass(on);
 	});
-	addToggle(m_tNotch, QStringLiteral("NOTCH"), tr("Notch filter (right click on the spectrum to place it)"), m_s.notch, [this](bool on) {
+	toggle(ui->tNotch, [this](bool on) {
 		m_s.notch = on;
 		m_engine->setNotch(on);
 	});
-	addToggle(m_tAtc, QStringLiteral("ATC"), tr("Automatic threshold control"), m_s.atc, [this](bool on) {
+	toggle(ui->tAtc, [this](bool on) {
 		m_s.atc = on;
 		m_engine->setAtc(on);
 	});
-	addToggle(m_tSq, QStringLiteral("SQ"), tr("Squelch"), m_s.squelch, [this](bool on) {
+	toggle(ui->tSq, [this](bool on) {
 		m_s.squelch = on;
 		m_engine->setSquelch(on, m_s.squelchLevel);
 	});
 
-	auto makeCombo = [&](const QString &label, const QStringList &items, int width) {
-		row1->addSpacing(8);
-		row1->addWidget(new QLabel(label));
-		auto *c = new QComboBox;
-		c->setEditable(true);
-		c->setInsertPolicy(QComboBox::NoInsert);
+	auto setupCombo = [&](QComboBox *c, const QStringList &items) {
 		c->addItems(items);
-		c->setMinimumWidth(width);
 		connect(c, QOverload<int>::of(&QComboBox::activated), this, [this] { onTuningEdited(); });
 		connect(c->lineEdit(), &QLineEdit::editingFinished, this, &MainWindow::onTuningEdited);
-		row1->addWidget(c);
-		return c;
 	};
-	m_markCombo = makeCombo(tr("Mark"), m_s.markList, 80);
-	m_shiftCombo = makeCombo(tr("Shift"), m_s.shiftList, 70);
-	m_baudCombo = makeCombo(tr("Baud"), m_s.baudList, 70);
+	setupCombo(ui->markCombo, m_s.markList);
+	setupCombo(ui->shiftCombo, m_s.shiftList);
+	setupCombo(ui->baudCombo, m_s.baudList);
 
-	row1->addSpacing(8);
-	row1->addWidget(new QLabel(tr("Demod")));
-	m_demCombo = new QComboBox;
-	m_demCombo->addItems({QStringLiteral("IIR"), QStringLiteral("FIR"), QStringLiteral("PLL"), QStringLiteral("FFT")});
-	m_demCombo->setCurrentIndex(m_s.demType);
-	connect(m_demCombo, QOverload<int>::of(&QComboBox::activated), this, [this](int i) {
+	ui->demCombo->setCurrentIndex(m_s.demType);
+	connect(ui->demCombo, QOverload<int>::of(&QComboBox::activated), this, [this](int i) {
 		m_s.demType = i;
 		m_engine->setDemodType(i);
 	});
-	row1->addWidget(m_demCombo);
-	row1->addStretch(1);
-	root->addWidget(m_row1Box);
 
-	// ---- level bar -------------------------------------------------------------------
-	m_level = new LevelBar;
-	connect(m_level, &LevelBar::squelchLevelChanged, this, [this](double lvl) {
+	connect(ui->level, &LevelBar::squelchLevelChanged, this, [this](double lvl) {
 		m_s.squelchLevel = lvl;
 		m_engine->setSquelch(m_s.squelch, lvl);
 	});
-	root->addWidget(m_level);
 
-	// ---- splitter: scopes / RX text / TX text -------------------------------------------
-	m_vsplit = new QSplitter(Qt::Vertical);
-	m_vsplit->setChildrenCollapsible(false);
+	// ---- scopes, text views -------------------------------------------------------------
+	connect(ui->spectrum, &SpectrumView::clicked, this, &MainWindow::onScopeClicked);
+	connect(ui->water, &WaterfallView::clicked, this, &MainWindow::onScopeClicked);
+	ui->rxView->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
+	ui->txEdit->setFont(ui->rxView->font());
 
-	auto *scopeBox = new QWidget;
-	auto *scopeRow = new QHBoxLayout(scopeBox);
-	scopeRow->setContentsMargins(0, 0, 0, 0);
-	auto *scopeCol = new QVBoxLayout;
-	m_spectrum = new SpectrumView;
-	m_water = new WaterfallView;
-	scopeCol->addWidget(m_spectrum, 1);
-	scopeCol->addWidget(m_water, 1);
-	scopeRow->addLayout(scopeCol, 1);
-	m_xy = new XYView;
-	m_xy->setMinimumWidth(110);
-	m_xy->setMaximumWidth(240);
-	scopeRow->addWidget(m_xy);
-	connect(m_spectrum, &SpectrumView::clicked, this, &MainWindow::onScopeClicked);
-	connect(m_water, &WaterfallView::clicked, this, &MainWindow::onScopeClicked);
-	m_vsplit->addWidget(scopeBox);
-
-	m_rxView = new QPlainTextEdit;
-	m_rxView->setReadOnly(true);
-	m_rxView->setMaximumBlockCount(10000);
-	m_rxView->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
-	m_vsplit->addWidget(m_rxView);
-
-	m_txEdit = new QPlainTextEdit;
-	m_txEdit->setUndoRedoEnabled(false);
-	m_txEdit->setFont(m_rxView->font());
-	m_txEdit->setPlaceholderText(tr("Type here, then press TX. Text is sent as it is typed while transmitting."));
-	m_vsplit->addWidget(m_txEdit);
-	m_vsplit->setStretchFactor(0, 2);
-	m_vsplit->setStretchFactor(1, 3);
-	m_vsplit->setStretchFactor(2, 1);
-	root->addWidget(m_vsplit, 1);
-
-	// ---- QSO fields -----------------------------------------------------------------
-	m_qsoBox = new QWidget;
-	auto *qso = new QHBoxLayout(m_qsoBox);
-	qso->setContentsMargins(0, 0, 0, 0);
-	auto field = [&](const QString &label, QLineEdit *&ptr, int width, const QString &init) {
-		qso->addWidget(new QLabel(label));
-		ptr = new QLineEdit(init);
-		ptr->setFixedWidth(width);
-		qso->addWidget(ptr);
-	};
-	field(tr("Call"), m_hisCall, 100, QString());
-	field(tr("Name"), m_hisName, 100, QString());
-	field(tr("QTH"), m_hisQth, 120, QString());
-	field(tr("His RST"), m_hisRst, 50, QStringLiteral("599"));
-	field(tr("My RST"), m_myRst, 50, QStringLiteral("599"));
-	m_hisCall->setMaxLength(16);
-	auto *logBtn = new QPushButton(tr("Log QSO"));
-	logBtn->setFocusPolicy(Qt::NoFocus);
-	connect(logBtn, &QPushButton::clicked, this, &MainWindow::logQso);
-	qso->addWidget(logBtn);
-	qso->addStretch(1);
-	root->addWidget(m_qsoBox);
-
-	// ---- TX controls and macros -------------------------------------------------------
-	m_txBox = new QWidget;
-	auto *txRow = new QHBoxLayout(m_txBox);
-	txRow->setContentsMargins(0, 0, 0, 0);
-	m_btnTx = new QPushButton(tr("TX"));
-	m_btnTx->setCheckable(true);
-	m_btnTx->setFocusPolicy(Qt::NoFocus);
-	m_btnTx->setMinimumWidth(70);
-	m_btnTx->setToolTip(tr("Toggle transmit (Ctrl+T). While transmitting: send the remaining text, then return to receive."));
-	connect(m_btnTx, &QPushButton::clicked, this, &MainWindow::txButtonClicked);
-	m_btnTxOff = new QPushButton(tr("TX OFF"));
-	m_btnTxOff->setFocusPolicy(Qt::NoFocus);
-	m_btnTxOff->setToolTip(tr("Abort transmission immediately (Esc)"));
-	connect(m_btnTxOff, &QPushButton::clicked, this, &MainWindow::pressTxOff);
-	txRow->addWidget(m_btnTx);
-	txRow->addWidget(m_btnTxOff);
-	txRow->addSpacing(12);
+	// ---- QSO fields, TX controls and macros ----------------------------------------------
+	connect(ui->logBtn, &QPushButton::clicked, this, &MainWindow::logQso);
+	connect(ui->btnTx, &QPushButton::clicked, this, &MainWindow::txButtonClicked);
+	connect(ui->btnTxOff, &QPushButton::clicked, this, &MainWindow::pressTxOff);
 	for( int i = 0; i < AppSettings::kInputButtons; i++ ){
-		m_inBtn[i] = new QPushButton;
-		m_inBtn[i]->setFocusPolicy(Qt::NoFocus);
+		m_inBtn[i] = findChild<QPushButton *>(QStringLiteral("inBtn%1").arg(i + 1));
 		connect(m_inBtn[i], &QPushButton::clicked, this, [this, i] { writeFifo(m_s.inButton[i]); });
-		txRow->addWidget(m_inBtn[i]);
 		new QShortcut(QKeySequence(int(Qt::ALT) | (int(Qt::Key_1) + i)), this, [this, i] { writeFifo(m_s.inButton[i]); });
 	}
-	txRow->addStretch(1);
-	root->addWidget(m_txBox);
-
-	m_macroBox = new QWidget;
-	auto *grid = new QGridLayout(m_macroBox);
-	grid->setContentsMargins(0, 0, 0, 0);
 	for( int i = 0; i < AppSettings::kMacros; i++ ){
-		m_macroBtn[i] = new QPushButton;
-		m_macroBtn[i]->setFocusPolicy(Qt::NoFocus);
-		m_macroBtn[i]->setMinimumWidth(60);
+		m_macroBtn[i] = findChild<QPushButton *>(QStringLiteral("macroBtn%1").arg(i + 1));
 		connect(m_macroBtn[i], &QPushButton::clicked, this, [this, i] { macBtnExec(i); });
-		grid->addWidget(m_macroBtn[i], i / 8, i % 8);
 		const int key = i < 12 ? int(Qt::Key_F1) + i : (int(Qt::SHIFT) | (int(Qt::Key_F1) + (i - 12)));
 		new QShortcut(QKeySequence(key), this, [this, i] { macBtnExec(i); });
 	}
-	root->addWidget(m_macroBox);
-
 	new QShortcut(QKeySequence(int(Qt::CTRL) | int(Qt::Key_T)), this, [this] { txButtonClicked(); });
 	new QShortcut(QKeySequence(Qt::Key_Escape), this, [this] { pressTxOff(); });
 
@@ -315,78 +193,53 @@ void MainWindow::buildUi()
 	statusBar()->addPermanentWidget(m_stFig);
 	statusBar()->addPermanentWidget(m_stTx);
 
-	m_water->setVisible(m_s.showWaterfall);
-	m_xy->setVisible(m_s.showXY);
-}
+	ui->water->setVisible(m_s.showWaterfall);
+	ui->xy->setVisible(m_s.showXY);
 
-void MainWindow::buildMenus()
-{
-	QMenu *file = menuBar()->addMenu(tr("&File"));
-	m_menuFile = file;
-	file->addAction(tr("&Play WAV file..."), this, [this] {
+	// ---- menus --------------------------------------------------------------------------
+	connect(ui->actionPlayWav, &QAction::triggered, this, [this] {
 		const QString p = QFileDialog::getOpenFileName(this, tr("Play WAV file"), QString(), tr("WAV files (*.wav)"));
 		if( p.isEmpty() ) return;
 		QString err;
 		if( !m_engine->playFile(p, &err) ) showStatus(err);
 	});
-	file->addAction(tr("&Record WAV file..."), this, [this] {
+	connect(ui->actionRecordWav, &QAction::triggered, this, [this] {
 		const QString p = QFileDialog::getSaveFileName(this, tr("Record WAV file"), QString(), tr("WAV files (*.wav)"));
 		if( p.isEmpty() ) return;
 		QString err;
 		if( !m_engine->recordFile(p, &err) ) showStatus(err);
 	});
-	m_actStopFile = file->addAction(tr("&Stop file"), this, [this] { m_engine->stopFile(); });
-	file->addSeparator();
-	m_actSettings = file->addAction(tr("&Settings..."), QKeySequence(QKeySequence::Preferences), this, &MainWindow::openSettings);
-	file->addSeparator();
-	file->addAction(tr("&Quit"), QKeySequence(QKeySequence::Quit), this, [this] { close(); });
+	connect(ui->actionStopFile, &QAction::triggered, this, [this] { m_engine->stopFile(); });
+	ui->actionSettings->setShortcut(QKeySequence::Preferences);
+	connect(ui->actionSettings, &QAction::triggered, this, &MainWindow::openSettings);
+	ui->actionQuit->setShortcut(QKeySequence::Quit);
+	connect(ui->actionQuit, &QAction::triggered, this, [this] { close(); });
 
-	QMenu *view = menuBar()->addMenu(tr("&View"));
-	m_actWater = view->addAction(tr("&Waterfall"));
-	m_actWater->setCheckable(true);
-	connect(m_actWater, &QAction::triggered, this, [this](bool on) {
+	connect(ui->actionWaterfall, &QAction::triggered, this, [this](bool on) {
 		m_s.showWaterfall = on;
-		m_water->setVisible(on);
+		ui->water->setVisible(on);
 	});
-	m_actXY = view->addAction(tr("&XY scope"));
-	m_actXY->setCheckable(true);
-	connect(m_actXY, &QAction::triggered, this, [this](bool on) {
+	connect(ui->actionXY, &QAction::triggered, this, [this](bool on) {
 		m_s.showXY = on;
-		m_xy->setVisible(on);
+		ui->xy->setVisible(on);
 		m_engine->setXYEnabled(on);
 	});
 
-	auto choiceMenu = [&](QMenu *parent, const QString &title, QActionGroup *&grp, const QList<QPair<QString, int>> &items, std::function<void(int)> fn) {
-		QMenu *m = parent->addMenu(title);
-		grp = new QActionGroup(this);
-		for( const auto &it : items ){
-			QAction *a = m->addAction(it.first);
-			a->setCheckable(true);
-			a->setData(it.second);
-			grp->addAction(a);
-			const int v = it.second;
+	// The actions of the two choice groups are declared in the .ui file in the order of their values.
+	auto choiceGroup = [&](QActionGroup *grp, std::function<void(int)> fn) {
+		int v = 0;
+		for( QAction *a : grp->actions() ){
+			a->setData(v);
 			connect(a, &QAction::triggered, this, [fn, v] { fn(v); });
+			v++;
 		}
 	};
-	choiceMenu(view, tr("Spectrum &gain"), m_gainGroup,
-	           {{tr("Low"), 0}, {tr("Medium"), 1}, {tr("High"), 2}, {tr("Very high"), 3},
-	            {tr("Auto 85%"), 4}, {tr("Auto 100%"), 5}, {tr("Auto 120%"), 6}, {tr("Auto 150%"), 7}},
-	           [this](int v) { m_s.fftGain = v; m_engine->setFftOptions(m_s.fftGain, m_s.fftResp, m_s.fftRange); });
-	choiceMenu(view, tr("Spectrum &width"), m_rangeGroup,
-	           {{tr("Automatic"), 0}, {QStringLiteral("500 Hz"), 1}, {QStringLiteral("1000 Hz"), 2},
-	            {QStringLiteral("1500 Hz"), 3}, {QStringLiteral("2000 Hz"), 4}, {QStringLiteral("3000 Hz"), 5}},
-	           [this](int v) { m_s.fftRange = v; m_engine->setFftOptions(m_s.fftGain, m_s.fftResp, m_s.fftRange); });
+	choiceGroup(ui->gainGroup, [this](int v) { m_s.fftGain = v; m_engine->setFftOptions(m_s.fftGain, m_s.fftResp, m_s.fftRange); });
+	choiceGroup(ui->rangeGroup, [this](int v) { m_s.fftRange = v; m_engine->setFftOptions(m_s.fftGain, m_s.fftResp, m_s.fftRange); });
 
-	QMenu *tools = menuBar()->addMenu(tr("&Tools"));
-	m_menuTools = tools;
-	m_actTest = tools->addAction(tr("&Test signal generator"));
-	m_actTest->setCheckable(true);
-	connect(m_actTest, &QAction::triggered, this, [this](bool on) { m_engine->setTest(on); });
-	tools->addAction(tr("&Log QSO"), QKeySequence(int(Qt::CTRL) | int(Qt::Key_L)), this, &MainWindow::logQso);
-
-	QMenu *help = menuBar()->addMenu(tr("&Help"));
-	m_menuHelp = help;
-	help->addAction(tr("&About"), this, [this] {
+	connect(ui->actionTest, &QAction::triggered, this, [this](bool on) { m_engine->setTest(on); });
+	connect(ui->actionLogQso, &QAction::triggered, this, &MainWindow::logQso);
+	connect(ui->actionAbout, &QAction::triggered, this, [this] {
 		QMessageBox::about(this, tr("About MMTTY"),
 			tr("<b>MMTTY (Qt)</b><br>RTTY engine and sound-card modem.<br><br>"
 			   "Qt port of MMTTY by Makoto Mori, JE3HHT.<br>The demodulator, modulator and AFC "
@@ -420,21 +273,21 @@ void MainWindow::pushSettings()
 
 void MainWindow::updateMenuState()
 {
-	m_actWater->setChecked(m_s.showWaterfall);
-	m_actXY->setChecked(m_s.showXY);
-	for( QAction *a : m_gainGroup->actions() ) a->setChecked(a->data().toInt() == m_s.fftGain);
-	for( QAction *a : m_rangeGroup->actions() ) a->setChecked(a->data().toInt() == m_s.fftRange);
-	m_tAfc->setChecked(m_s.afc);
-	m_tNet->setChecked(m_s.txNet);
-	m_tRev->setChecked(m_s.reverse);
-	m_tUos->setChecked(m_s.uos);
-	m_tBpf->setChecked(m_s.bpf);
-	m_tNotch->setChecked(m_s.notch);
-	m_tAtc->setChecked(m_s.atc);
-	m_tSq->setChecked(m_s.squelch);
-	m_demCombo->setCurrentIndex(m_s.demType);
-	m_water->setVisible(m_s.showWaterfall);
-	m_xy->setVisible(m_s.showXY);
+	ui->actionWaterfall->setChecked(m_s.showWaterfall);
+	ui->actionXY->setChecked(m_s.showXY);
+	for( QAction *a : ui->gainGroup->actions() ) a->setChecked(a->data().toInt() == m_s.fftGain);
+	for( QAction *a : ui->rangeGroup->actions() ) a->setChecked(a->data().toInt() == m_s.fftRange);
+	ui->tAfc->setChecked(m_s.afc);
+	ui->tNet->setChecked(m_s.txNet);
+	ui->tRev->setChecked(m_s.reverse);
+	ui->tUos->setChecked(m_s.uos);
+	ui->tBpf->setChecked(m_s.bpf);
+	ui->tNotch->setChecked(m_s.notch);
+	ui->tAtc->setChecked(m_s.atc);
+	ui->tSq->setChecked(m_s.squelch);
+	ui->demCombo->setCurrentIndex(m_s.demType);
+	ui->water->setVisible(m_s.showWaterfall);
+	ui->xy->setVisible(m_s.showXY);
 }
 
 void MainWindow::openSettings()
@@ -469,14 +322,14 @@ void MainWindow::openSettings()
 // menu are optional.  Only the settings dialog remains in the File menu.
 void MainWindow::applyRemoteLayout(bool controls, bool menu)
 {
-	m_qsoBox->hide();
-	m_txBox->hide();
-	m_macroBox->hide();
-	m_txEdit->hide();
-	m_row1Box->setVisible(controls);
-	for( QAction *a : m_menuFile->actions() ) a->setVisible(a == m_actSettings);
-	m_menuTools->menuAction()->setVisible(false);
-	m_menuHelp->menuAction()->setVisible(false);
+	ui->qsoBox->hide();
+	ui->txBox->hide();
+	ui->macroBox->hide();
+	ui->txEdit->hide();
+	ui->row1Box->setVisible(controls);
+	for( QAction *a : ui->menuFile->actions() ) a->setVisible(a == ui->actionSettings);
+	ui->menuTools->menuAction()->setVisible(false);
+	ui->menuHelp->menuAction()->setVisible(false);
 	menuBar()->setVisible(menu);
 	for( QShortcut *s : findChildren<QShortcut *>() ) s->setEnabled(false);		// no keyboard transmit control
 }
@@ -501,7 +354,7 @@ void MainWindow::saveSettings()
 {
 	m_s.save(*m_ini);
 	m_ini->setValue(windowKey() + QStringLiteral("/geometry"), saveGeometry());
-	m_ini->setValue(windowKey() + QStringLiteral("/split"), m_vsplit->saveState());
+	m_ini->setValue(windowKey() + QStringLiteral("/split"), ui->vsplit->saveState());
 	m_ini->sync();
 }
 
@@ -520,9 +373,9 @@ void MainWindow::closeEvent(QCloseEvent *e)
 void MainWindow::updateTuningCombos()
 {
 	m_disEvent++;
-	m_markCombo->setEditText(num(m_s.mark));
-	m_shiftCombo->setEditText(num(m_s.shift));
-	m_baudCombo->setEditText(num(m_s.baud));
+	ui->markCombo->setEditText(num(m_s.mark));
+	ui->shiftCombo->setEditText(num(m_s.shift));
+	ui->baudCombo->setEditText(num(m_s.baud));
 	m_disEvent--;
 	m_stTune->setText(tr("Mark %1 Hz   Space %2 Hz").arg(num(m_s.mark), num(m_s.mark + m_s.shift)));
 }
@@ -531,9 +384,9 @@ void MainWindow::onTuningEdited()
 {
 	if( m_disEvent ) return;
 	bool ok1, ok2, ok3;
-	const double mark = m_markCombo->currentText().toDouble(&ok1);
-	const double shift = m_shiftCombo->currentText().toDouble(&ok2);
-	const double baud = m_baudCombo->currentText().toDouble(&ok3);
+	const double mark = ui->markCombo->currentText().toDouble(&ok1);
+	const double shift = ui->shiftCombo->currentText().toDouble(&ok2);
+	const double baud = ui->baudCombo->currentText().toDouble(&ok3);
 	if( !ok1 || !ok2 || !ok3 || mark < MARKL || shift < 10 || mark + shift > SPACEH || baud < 10 || baud > 400 ){
 		showStatus(tr("Invalid mark / shift / baud value"));
 		updateTuningCombos();
@@ -553,7 +406,7 @@ void MainWindow::onTuning(double mark, double space)
 {
 	m_s.mark = mark;
 	m_s.shift = space - mark;
-	if( !m_markCombo->lineEdit()->hasFocus() && !m_shiftCombo->lineEdit()->hasFocus() ) updateTuningCombos();
+	if( !ui->markCombo->lineEdit()->hasFocus() && !ui->shiftCombo->lineEdit()->hasFocus() ) updateTuningCombos();
 	else m_stTune->setText(tr("Mark %1 Hz   Space %2 Hz").arg(num(mark), num(space)));
 }
 
@@ -563,8 +416,8 @@ void MainWindow::onScopeClicked(int x, int width, Qt::MouseButton b)
 	const double f = m_engine->screenFrequency(x, width);
 	if( b == Qt::RightButton ){
 		m_engine->setNotchFrequency(f);
-		if( !m_tNotch->isChecked() ){
-			m_tNotch->setChecked(true);
+		if( !ui->tNotch->isChecked() ){
+			ui->tNotch->setChecked(true);
 			m_s.notch = true;
 			m_engine->setNotch(true);
 		}
@@ -587,24 +440,24 @@ void MainWindow::onTimer()
 	Engine::Spectrum sp;
 	if( m_engine->fetchSpectrum(sp) ){
 		const int fm = m_engine->fileMode();
-		m_spectrum->setOverlay(fm == WavFile::Play ? tr("Play") : (fm == WavFile::Record ? tr("Rec.") : QString()));
-		m_spectrum->setFrame(sp);
+		ui->spectrum->setOverlay(fm == WavFile::Play ? tr("Play") : (fm == WavFile::Record ? tr("Rec.") : QString()));
+		ui->spectrum->setFrame(sp);
 		emit spectrumUpdated(sp);
-		if( m_s.showWaterfall ) m_water->addFrame(sp);
-		const bool menuOpen = m_markCombo->view()->isVisible() || m_shiftCombo->view()->isVisible();
+		if( m_s.showWaterfall ) ui->water->addFrame(sp);
+		const bool menuOpen = ui->markCombo->view()->isVisible() || ui->shiftCombo->view()->isVisible();
 		if( m_s.afc && !menuOpen ) m_engine->doAfc();		// emits tuningChanged when the tuning moved
 	}
 	const Engine::Level lv = m_engine->signalLevel();
-	m_level->setLevel(lv);
+	ui->level->setLevel(lv);
 	emit levelUpdated(lv);
 	if( m_s.showXY ){
 		std::vector<double> x, y;
 		if( m_engine->fetchXY(x, y) ){
-			m_xy->setData(x, y, lv.limiter, m_s.demType == 1);
+			ui->xy->setData(x, y, lv.limiter, m_s.demType == 1);
 			emit xyUpdated(x, y, lv.limiter);
 		}
 	}
-	m_actStopFile->setEnabled(m_engine->fileMode() != WavFile::Closed);
+	ui->actionStopFile->setEnabled(m_engine->fileMode() != WavFile::Closed);
 	pumpTx();
 }
 
@@ -618,12 +471,12 @@ void MainWindow::onRxText(const QString &text, bool whileTx)
 		if( c.unicode() >= 0x20 ) out += c;
 	}
 	if( out.isEmpty() ) return;
-	QScrollBar *sb = m_rxView->verticalScrollBar();
+	QScrollBar *sb = ui->rxView->verticalScrollBar();
 	const bool atEnd = sb->value() >= sb->maximum() - 2;
-	QTextCursor cur(m_rxView->document());
+	QTextCursor cur(ui->rxView->document());
 	cur.movePosition(QTextCursor::End);
 	QTextCharFormat fmt;
-	fmt.setForeground(whileTx ? QColor(200, 30, 30) : m_rxView->palette().text().color());
+	fmt.setForeground(whileTx ? QColor(200, 30, 30) : ui->rxView->palette().text().color());
 	cur.insertText(out, fmt);
 	if( atEnd ) sb->setValue(sb->maximum());
 }
@@ -647,7 +500,7 @@ void MainWindow::onFig(bool fig) { m_stFig->setText(fig ? QStringLiteral("FIG") 
 void MainWindow::onMessage(const QString &text) { showStatus(text); }
 void MainWindow::onFileFinished() { showStatus(tr("Sound file finished")); }
 void MainWindow::showStatus(const QString &s) { statusBar()->showMessage(s, 6000); }
-QString MainWindow::rxText() const { return m_rxView->toPlainText(); }
+QString MainWindow::rxText() const { return ui->rxView->toPlainText(); }
 
 // ===========================================================================
 // transmit state machine (ports of ToTX / ToRX / OutputStr / MacBtnExec / TimerTimer)
@@ -656,19 +509,19 @@ MacroContext MainWindow::macroContext() const
 {
 	MacroContext c;
 	c.myCall = m_s.call;
-	c.hisCall = m_hisCall->text().trimmed().toUpper();
-	c.hisName = m_hisName->text().trimmed();
-	c.hisQth = m_hisQth->text().trimmed();
-	c.hisRst = m_hisRst->text().trimmed();
-	c.myRst = m_myRst->text().trimmed();
+	c.hisCall = ui->hisCall->text().trimmed().toUpper();
+	c.hisName = ui->hisName->text().trimmed();
+	c.hisQth = ui->hisQth->text().trimmed();
+	c.hisRst = ui->hisRst->text().trimmed();
+	c.myRst = ui->myRst->text().trimmed();
 	return c;
 }
 
 void MainWindow::updateTxUi()
 {
-	m_btnTx->setChecked(m_txDown);
-	m_btnTx->setText(m_txDown && m_reqRecv ? tr("WAIT") : tr("TX"));
-	m_btnTx->setStyleSheet(m_txDown ? QStringLiteral("QPushButton{background:#c62828;color:white;font-weight:bold;}") : QString());
+	ui->btnTx->setChecked(m_txDown);
+	ui->btnTx->setText(m_txDown && m_reqRecv ? tr("WAIT") : tr("TX"));
+	ui->btnTx->setStyleSheet(m_txDown ? QStringLiteral("QPushButton{background:#c62828;color:white;font-weight:bold;}") : QString());
 }
 
 void MainWindow::updateMacroButtons()
@@ -727,7 +580,7 @@ void MainWindow::reportPtt(bool tx)
 bool MainWindow::fifoSendReady() const
 {
 	if( m_sendWay == 0 || m_reqRecv ) return true;
-	QTextDocument *d = m_txEdit->document();
+	QTextDocument *d = ui->txEdit->document();
 	if( d->blockCount() > 1 ) return true;					// a complete line is waiting
 	const QString line = d->firstBlock().text();
 	if( line.isEmpty() || line.contains(QLatin1Char('\\')) ) return true;
@@ -739,7 +592,7 @@ void MainWindow::toRx(bool immediate)
 	if( !m_txDown ) return;
 	m_txDown = false;
 	m_reqRecv = false;
-	if( m_viaTx ) m_txEdit->clear();
+	if( m_viaTx ) ui->txEdit->clear();
 	m_macro = 0;
 	m_macroStat = 0;
 	m_fifoPause = 0;
@@ -800,13 +653,13 @@ void MainWindow::writeFifo(const QString &text)
 {
 	QString s = text;
 	while( !s.isEmpty() && (s[0] == QLatin1Char('\\') || s[0] == QLatin1Char('#')) ){
-		if( s[0] == QLatin1Char('\\') ) m_txEdit->clear();
+		if( s[0] == QLatin1Char('\\') ) ui->txEdit->clear();
 		else if( !m_txDown ) toTx(s.toLatin1(), true);
 		s.remove(0, 1);
 	}
 	const int e = s.indexOf(QLatin1String("%E"));
 	if( e >= 0 ) s.truncate(e);
-	QTextCursor cur(m_txEdit->document());
+	QTextCursor cur(ui->txEdit->document());
 	cur.movePosition(QTextCursor::End);
 	cur.insertText(s);
 }
@@ -815,12 +668,12 @@ void MainWindow::typeText(const QString &text) { writeFifo(text); }
 
 int MainWindow::fifoLen() const
 {
-	return qMax(0, m_txEdit->document()->characterCount() - 1);
+	return qMax(0, ui->txEdit->document()->characterCount() - 1);
 }
 
 int MainWindow::fifoGet()
 {
-	QTextDocument *d = m_txEdit->document();
+	QTextDocument *d = ui->txEdit->document();
 	if( fifoLen() == 0 ) return -1;
 	const QChar ch = d->characterAt(0);
 	QTextCursor cur(d);
@@ -841,7 +694,7 @@ void MainWindow::pumpTx()
 		}
 	}
 	if( !m_txDown ){
-		if( m_actTest->isChecked() && !m_engine->isTx() && m_engine->txBufferCount() < 3 )
+		if( ui->actionTest->isChecked() && !m_engine->isTx() && m_engine->txBufferCount() < 3 )
 			m_engine->putText(QByteArray(kTestData));
 		return;
 	}
@@ -939,16 +792,16 @@ void MainWindow::pressMacro(int index) { macBtnExec(index); }
 void MainWindow::logQso()
 {
 	QsoLog::Entry e;
-	e.call = m_hisCall->text().trimmed().toUpper();
+	e.call = ui->hisCall->text().trimmed().toUpper();
 	if( e.call.isEmpty() ){
 		showStatus(tr("Enter the other station's call sign first"));
 		return;
 	}
 	e.utc = QDateTime::currentDateTimeUtc();
-	e.name = m_hisName->text().trimmed();
-	e.qth = m_hisQth->text().trimmed();
-	e.rstSent = m_myRst->text().trimmed();
-	e.rstRcvd = m_hisRst->text().trimmed();
+	e.name = ui->hisName->text().trimmed();
+	e.qth = ui->hisQth->text().trimmed();
+	e.rstSent = ui->myRst->text().trimmed();
+	e.rstRcvd = ui->hisRst->text().trimmed();
 	e.myCall = m_s.call;
 	e.audioMark = m_s.mark;
 	QString err;
@@ -957,7 +810,7 @@ void MainWindow::logQso()
 		return;
 	}
 	showStatus(tr("Logged %1 to %2").arg(e.call, m_log.path()));
-	m_hisCall->clear();
-	m_hisName->clear();
-	m_hisQth->clear();
+	ui->hisCall->clear();
+	ui->hisName->clear();
+	ui->hisQth->clear();
 }
