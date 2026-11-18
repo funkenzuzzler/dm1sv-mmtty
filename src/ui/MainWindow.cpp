@@ -323,10 +323,15 @@ void MainWindow::openSettings()
 void MainWindow::applyRemoteLayout(bool controls, bool menu)
 {
 	ui->qsoBox->hide();
-	ui->txBox->hide();
+	ui->txPane->hide();					// input buttons and the TX text
 	ui->macroBox->hide();
-	ui->txEdit->hide();
-	ui->row1Box->setVisible(controls);
+	ui->btnTx->hide();
+	ui->btnTxOff->hide();
+	ui->controlBox->setVisible(controls);
+	// the level bar stays, the rest of the demodulator group is part of the control panel
+	for( QWidget *c : ui->demodBox->findChildren<QWidget *>(QString(), Qt::FindDirectChildrenOnly) )
+		c->setVisible(controls || c == ui->level);
+	if( !controls ) ui->demodBox->setTitle(QString());
 	for( QAction *a : ui->menuFile->actions() ) a->setVisible(a == ui->actionSettings);
 	ui->menuTools->menuAction()->setVisible(false);
 	ui->menuHelp->menuAction()->setVisible(false);
